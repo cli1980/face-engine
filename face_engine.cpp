@@ -3,15 +3,35 @@
 #include <vector>
 #include <numeric> 
 
-FaceEngine::FaceEngine(const string& landmark, const string& fr)
+FaceEngine::FaceEngine()
 {
     m_faceDetector = get_frontal_face_detector();
-    deserialize(landmark) >> m_shapePred;
-    deserialize(fr) >> m_frNet;
 }
 
 FaceEngine::~FaceEngine()
 {}
+
+bool FaceEngine::InitializeModels(const std::map<int, std::string> &wfiles)
+{
+    auto ishape = wfiles.find(DLIB_SHAPE_MODEL);
+    if (wfiles.end() == ishape || !filesystem::exists(ishape->second))
+    {
+        cerr << " Missing weight file for shape model" << endl;
+        return false;
+    }
+
+    auto ifr =  wfiles.find(DLIB_FR_MODEL);
+    if (wfiles.end() == ifr || !filesystem::exists(ifr->second))
+    {
+        cerr << "Missing weight file for FR model" << endl;
+        return false;
+    }
+
+    deserialize(ishape->second) >> m_shapePred;
+    deserialize(ifr->second) >> m_frNet;
+
+    return true;
+}
 
 bool FaceEngine::BuildDataset(const string& dpath, const string& epath)
 {
