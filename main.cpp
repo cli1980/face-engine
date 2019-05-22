@@ -4,6 +4,7 @@
 static gchar* dataset_path = NULL;
 static gchar* predictor_path = NULL;
 static gchar* fr_path = NULL;
+static gchar* mmod_path = NULL;
 static gboolean regenerate = FALSE;
 static gchar* input_path = NULL;
 static double threshold = 0.6;
@@ -11,13 +12,15 @@ static double threshold = 0.6;
 GOptionEntry entries[] =
 {
     {"dataset", 'd', 0, G_OPTION_ARG_FILENAME, &dataset_path, 
-     "Designate path to pre-defined dataset", NULL},
+     "Designate the path to pre-defined dataset", NULL},
     {"regenerate", 'r', 0, G_OPTION_ARG_NONE, &regenerate,
      "Regenerate embeddings from pre-defined dataset", NULL},
     {"predictor", 'p', 0, G_OPTION_ARG_FILENAME, &predictor_path,
-     "Designate path to pre-trained shape predictor model file", NULL},
+     "Designate the path to pre-trained shape predictor model file", NULL},
     {"face-model", 'f', 0, G_OPTION_ARG_FILENAME, &fr_path,
-     "Designate path to pre-trained face model file", NULL}, 
+     "Designate the path to pre-trained weight file of face model", NULL},
+    {"mmod-model", 'm', 0, G_OPTION_ARG_FILENAME, &mmod_path,
+     "Designate the path to pre-trained weight file of mmod model", NULL}, 
     {"input", 'i', 0, G_OPTION_ARG_FILENAME, &input_path,
      "Input image file", NULL},
     {"threshold", 't', 0,  G_OPTION_ARG_DOUBLE, &threshold,
@@ -68,8 +71,9 @@ int main(int argc, char** argv)
 
     FaceEngine engine;
     std::map<int, std::string> paths;
-    paths[FaceEngine::DLIB_SHAPE_MODEL] = predictor_path;
-    paths[FaceEngine::DLIB_FR_MODEL] = fr_path;
+    if (predictor_path) paths[FaceEngine::DLIB_SHAPE_MODEL] = predictor_path;
+    if (fr_path) paths[FaceEngine::DLIB_FR_MODEL] = fr_path;
+    if (mmod_path) paths[FaceEngine::DLIB_MMOD_MODEL] = mmod_path;
     if (!engine.InitializeModels(paths))
     {
         printf("Failed to load weight files\n");

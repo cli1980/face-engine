@@ -4,9 +4,7 @@
 #include <numeric> 
 
 FaceEngine::FaceEngine()
-{
-    m_faceDetector = get_frontal_face_detector();
-}
+{}
 
 FaceEngine::~FaceEngine()
 {}
@@ -25,6 +23,28 @@ bool FaceEngine::InitializeModels(const std::map<int, std::string> &wfiles)
     {
         cerr << "Missing weight file for FR model" << endl;
         return false;
+    }
+
+    auto ifd = wfiles.find(DLIB_MMOD_MODEL);
+    if (wfiles.end() == ifd || !filesystem::exists(ifd->second))
+    {
+        cout << "MMOD model not found, fall back to HOG detector" << endl;
+        m_hog = get_frontal_face_detector();
+        m_faceDetector = [this](const matrix<rgb_pixel>& img)
+        {
+            return m_hog(img);
+        };
+    }
+    else
+    {
+        deserialize(ifd->second) >> m_mmodNet;
+        m_faceDetector = [this](const matrix<rgb_pixel>& img)
+        {
+            auto &rects = m_mmodNet(img);
+            std::vector<rectangle> res;
+            for (auto &i : rects) res.push_back(i);
+            return res;  
+        };
     }
 
     deserialize(ishape->second) >> m_shapePred;

@@ -6,6 +6,8 @@
 #include <vector>
 
 using embedding_map = std::map<string, std::vector<matrix<float,0,1>>>;
+using face_detector = std::function<std::vector<rectangle>(const matrix<rgb_pixel>&)>;
+
 class FaceEngine
 {
 public:
@@ -46,7 +48,9 @@ public:
 private:
     shape_predictor         m_shapePred;
     anet_type               m_frNet;
-    frontal_face_detector   m_faceDetector;
+    net_type                m_mmodNet;
+    frontal_face_detector   m_hog;
+    face_detector           m_faceDetector;
     embedding_map           m_faceMap;
 
 protected:
