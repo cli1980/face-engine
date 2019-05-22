@@ -9,12 +9,22 @@ using embedding_map = std::map<string, std::vector<matrix<float,0,1>>>;
 class FaceEngine
 {
 public:
-    FaceEngine() = delete;
-    
-    FaceEngine(const string& landmark /*< path to parameter file of landmark*/,
-               const string& fr /* path to parameter file of fr*/);
+    /**
+     * Models to be used
+     * */
+    enum
+    {
+        DLIB_SHAPE_MODEL,
+        DLIB_FR_MODEL,
+        DLIB_MMOD_MODEL
+    };
+
+    FaceEngine();
 
     virtual ~FaceEngine();
+
+    /* Initialize models with weight files */
+    virtual bool InitializeModels(const std::map<int, std::string> &wfiles);
 
     /* Generate embeddings on given data set */
     virtual bool BuildDataset(const string& dpath /*< path to dataset */,

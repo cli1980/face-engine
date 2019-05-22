@@ -66,7 +66,16 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    FaceEngine engine(predictor_path, fr_path);
+    FaceEngine engine;
+    std::map<int, std::string> paths;
+    paths[FaceEngine::DLIB_SHAPE_MODEL] = predictor_path;
+    paths[FaceEngine::DLIB_FR_MODEL] = fr_path;
+    if (!engine.InitializeModels(paths))
+    {
+        printf("Failed to load weight files\n");
+        return -2;
+    }
+
     image_window win;
     
     if (regenerate)
